@@ -48,6 +48,7 @@ SRCS += \
   ../../littlefs/lfs.c \
   ../../littlefs/lfs_util.c \
   ../movement.c \
+  ../movement_custom_signal_tunes.c \
   ../filesystem.c \
   ../shell.c \
   ../shell_cmd_list.c \
