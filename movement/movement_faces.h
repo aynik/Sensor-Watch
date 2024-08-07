@@ -106,6 +106,7 @@
 #include "kitchen_conversions_face.h"
 #include "metronome_face.h"
 #include "beeps_face.h"
+#include "signal_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

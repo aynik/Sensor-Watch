@@ -71,3 +71,18 @@ void watch_set_led_yellow(void) {
 void watch_set_led_off(void) {
     watch_set_led_color(0, 0);
 }
+
+void watch_set_led_in(void) {
+    gpio_set_pin_direction(GREEN, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
+}
+
+void watch_set_led_out(void) {
+    watch_enable_digital_output(GREEN);
+    gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(GREEN, WATCH_GREEN_TCC_PINMUX);
+}
+
+bool watch_read_green_led_state(void) {
+    return gpio_get_pin_level(GREEN);
+}

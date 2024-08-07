@@ -64,3 +64,11 @@ void watch_set_led_yellow(void) {
 void watch_set_led_off(void) {
     watch_set_led_color(0, 0);
 }
+
+void watch_set_led_in(void) { }
+
+void watch_set_led_out(void) { }
+
+bool watch_read_green_led_state(void) {
+    return 0;
+}

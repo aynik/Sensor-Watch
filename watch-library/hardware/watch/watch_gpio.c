@@ -24,7 +24,7 @@
 
 #include "watch_gpio.h"
 
- void watch_enable_digital_input(const uint8_t pin) {
+void watch_enable_digital_input(const uint8_t pin) {
     gpio_set_pin_direction(pin, GPIO_DIRECTION_IN);
     gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_OFF);
 }

@@ -94,5 +94,14 @@ void watch_set_led_yellow(void);
 /** @brief Turns both the red and the green LEDs off. */
 void watch_set_led_off(void);
 
+/** @brief Activates led digital input for reading. */
+void watch_set_led_in(void);
+
+/** @brief Activates led digital ouput for displaying. */
+void watch_set_led_out(void);
+
+/** @brief Reads the input state of the green LED. */
+bool watch_read_green_led_state(void);
+
 /// @}
 #endif
