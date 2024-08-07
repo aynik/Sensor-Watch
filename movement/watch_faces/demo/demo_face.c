@@ -58,7 +58,6 @@ void demo_face_activate(movement_settings_t *settings, void *context) {
     movement_request_tick_frequency(0);
     // ensure the watch never enters low energy mode
     settings->bit.le_interval = 0;
-    settings->bit.led_duration = 3;
 }
 
 bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {

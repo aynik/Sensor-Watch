@@ -93,7 +93,7 @@ const watch_face_t watch_faces[] = {
  * 2: 3 seconds
  * 3: 5 seconds
  */
-#define MOVEMENT_DEFAULT_LED_DURATION 1
+#define MOVEMENT_DEFAULT_LED_DURATION 2
 
 /* The latitude and longitude used for the wearers location
  * Set signed values in 1/100ths of a degree

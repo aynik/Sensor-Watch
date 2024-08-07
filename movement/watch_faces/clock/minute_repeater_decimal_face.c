@@ -234,5 +234,11 @@ bool minute_repeater_decimal_face_wants_background_task(movement_settings_t *set
 
     watch_date_time date_time = watch_rtc_get_date_time();
 
+    if (
+        settings->bit.silent_from != settings->bit.silent_to
+        && (date_time.unit.hour - settings->bit.silent_from + 24) % 24
+        < (settings->bit.silent_to - settings->bit.silent_from + 24) % 24
+    ) return false;
+
     return date_time.unit.minute == 0;
 }

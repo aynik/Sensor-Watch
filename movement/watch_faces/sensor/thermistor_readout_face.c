@@ -28,15 +28,11 @@
 #include "thermistor_driver.h"
 #include "watch.h"
 
-static void _thermistor_readout_face_update_display(bool in_fahrenheit) {
+static void _thermistor_readout_face_update_display() {
     thermistor_driver_enable();
     float temperature_c = thermistor_driver_get_temperature();
     char buf[14];
-    if (in_fahrenheit) {
-        sprintf(buf, "%4.1f#F", temperature_c * 1.8 + 32.0);
-    } else {
-        sprintf(buf, "%4.1f#C", temperature_c);
-    }
+    sprintf(buf, "%4.1f#C", temperature_c);
     watch_display_string(buf, 4);
     thermistor_driver_disable();
 }
@@ -57,10 +53,6 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
     (void) context;
     watch_date_time date_time = watch_rtc_get_date_time();
     switch (event.event_type) {
-        case EVENT_ALARM_BUTTON_DOWN:
-            settings->bit.use_imperial_units = !settings->bit.use_imperial_units;
-            _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
-            break;
         case EVENT_ACTIVATE:
             // force a measurement to be taken immediately.
             date_time.unit.second = 0;
@@ -72,7 +64,7 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
                 // In reality the measurement takes a fraction of a second, but this is just to show something is happening.
                 watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             } else if (date_time.unit.second % 5 == 0) {
-                _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
+                _thermistor_readout_face_update_display();
                 watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             }
             break;
@@ -85,7 +77,7 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
             // update every 5 minutes
             if (date_time.unit.minute % 5 == 0) {
                 watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-                _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
+                _thermistor_readout_face_update_display();
                 watch_display_string("  ", 8);
             }
             break;

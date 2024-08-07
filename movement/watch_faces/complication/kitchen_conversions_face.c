@@ -30,7 +30,6 @@ typedef struct
 {
     char name[6];          // Name to display on selection
     double conv_factor_uk; // Unit as represented in base units (UK)
-    double conv_factor_us; // Unit as represented in base units (US)
     int16_t linear_factor; // Addition of constant (For temperatures)
 } unit;
 
@@ -51,28 +50,28 @@ static char measures[MEASURES_COUNT][6] = {"WeIght", " Temp", " VOL"};
 const uint8_t units_count[4] = {WEIGHT_COUNT, TEMP_COUNT, VOL_COUNT};
 
 static const unit weights[WEIGHT_COUNT] = {
-    {" g", 1., 1., 0}, // BASE
-    {" kg", 1000., 1000, 0},
-    {"Ounce", 28.34952, 28.34952, 0},
-    {" Pound", 453.5924, 453.5924, 0},
+    {" g", 1., 0}, // BASE
+    {" kg", 1000., 0},
+    {"Ounce", 28.34952, 0},
+    {" Pound", 453.5924, 0},
 };
 
 static const unit temps[TEMP_COUNT] = {
-    {" # C", 1.8, 1.8, 32},
-    {" # F", 1., 1., 0}, // BASE
-    {"Gas Mk", 25., 25., 250},
+    {" # C", 1.8, 32},
+    {" # F", 1., 0}, // BASE
+    {"Gas Mk", 25., 250},
 };
 
 static const unit vols[VOL_COUNT] = {
-    {"  n&L", 1., 1., 0}, // BASE (ml)
-    {"   L", 1000., 1000., 0},
-    {" Fl Oz", 28.41306, 29.57353, 0},
-    {" Tbsp", 17.75816, 14.78677, 0},
-    {" Tsp", 5.919388, 4.928922, 0},
-    {"  Cup", 284.1306, 236.5882, 0},
-    {" Pint", 568.2612, 473.1765, 0},
-    {" Quart", 1136.522, 946.353, 0},
-    {"Gallon", 4546.09, 3785.412, 0},
+    {"  n&L", 1., 0}, // BASE (ml)
+    {"   L", 1000., 0},
+    {" Fl Oz", 28.41306, 0},
+    {" Tbsp", 17.75816, 0},
+    {" Tsp", 5.919388, 0},
+    {"  Cup", 284.1306, 0},
+    {" Pint", 568.2612, 0},
+    {" Quart", 1136.522, 0},
+    {"Gallon", 4546.09, 0},
 };
 
 static int8_t calc_success_seq[5] = {BUZZER_NOTE_G6, 10, BUZZER_NOTE_C7, 10, 0};
@@ -85,9 +84,7 @@ static void reset_state(kitchen_conversions_state_t *state, movement_settings_t 
     state->pg = measurement;
     state->measurement_i = 0;
     state->from_i = 0;
-    state->from_is_us = settings->bit.use_imperial_units; // If uses imperial, most likely to be US
     state->to_i = 0;
-    state->to_is_us = settings->bit.use_imperial_units;
     state->selection_value = 0;
     state->selection_index = 0;
     state->light_held = false;
@@ -190,7 +187,7 @@ static void display(kitchen_conversions_state_t *state, movement_settings_t *set
         {
             watch_display_string("F", 3);
 
-            char *locale = state->from_is_us ? "A " : "GB";
+            char *locale = "GB";
             watch_display_string(locale, 0);
         }
         else
@@ -207,8 +204,7 @@ static void display(kitchen_conversions_state_t *state, movement_settings_t *set
         if (state->measurement_i == VOL)
         {
             watch_display_string("T", 3);
-
-            char *locale = state->to_is_us ? "A " : "GB";
+            char *locale = "GB";
             watch_display_string(locale, 0);
         }
         else
@@ -245,8 +241,8 @@ static void display(kitchen_conversions_state_t *state, movement_settings_t *set
         unit froms = get_unit_list(state->measurement_i)[state->from_i];
         unit tos = get_unit_list(state->measurement_i)[state->to_i];
         // Chooses correct factor for locale
-        double f_conv_factor = state->from_is_us ? froms.conv_factor_us : froms.conv_factor_uk;
-        double t_conv_factor = state->to_is_us ? tos.conv_factor_us : tos.conv_factor_uk;
+        double f_conv_factor = froms.conv_factor_uk;
+        double t_conv_factor = tos.conv_factor_uk;
         // Converts
         double to_base = (state->selection_value * f_conv_factor) + 100 * froms.linear_factor;
         double conversion = ((to_base - 100 * tos.linear_factor) / t_conv_factor);
@@ -396,12 +392,10 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
 
             case from:
                 state->from_i = 0;
-                state->from_is_us = settings->bit.use_imperial_units;
                 break;
 
             case to:
                 state->to_i = 0;
-                state->to_is_us = settings->bit.use_imperial_units;
                 break;
 
             case input:
@@ -432,15 +426,6 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
         // Switch between locales
         if (state->measurement_i == VOL)
         {
-            if (state->pg == from)
-            {
-                state->from_is_us = !state->from_is_us;
-            }
-            else if (state->pg == to)
-            {
-                state->to_is_us = !state->to_is_us;
-            }
-
             if (state->pg == from || state->pg == to)
             {
                 display(state, settings, event.subsecond);

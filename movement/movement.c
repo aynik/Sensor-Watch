@@ -278,12 +278,10 @@ void movement_request_tick_frequency(uint8_t freq) {
 }
 
 void movement_illuminate_led(void) {
-    if (movement_state.settings.bit.led_duration) {
-        watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
-                            movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
-        movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
-        _movement_enable_fast_tick_if_needed();
-    }
+    watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
+                        movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
+    movement_state.light_ticks = (MOVEMENT_DEFAULT_LED_DURATION * 2 - 1) * 128;
+    _movement_enable_fast_tick_if_needed();
 }
 
 bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings) {
@@ -372,14 +370,6 @@ static void end_buzzing_and_disable_buzzer(void) {
     watch_disable_buzzer();
 }
 
-static void set_initial_clock_mode(void) {
-#ifdef CLOCK_FACE_24H_ONLY
-    movement_state.settings.bit.clock_mode_24h = true;
-#else
-    movement_state.settings.bit.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
-#endif
-}
-
 void movement_play_signal(void) {
     void *maybe_disable_buzzer = end_buzzing_and_disable_buzzer;
     if (watch_is_buzzer_or_led_enabled()) {
@@ -437,13 +427,11 @@ void app_init(void) {
 #endif
 
     memset(&movement_state, 0, sizeof(movement_state));
-    set_initial_clock_mode();
     movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
     movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
     movement_state.settings.bit.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
     movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
     movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
-    movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
     movement_state.location.bit.latitude = MOVEMENT_DEFAULT_LATITUDE;
     movement_state.location.bit.longitude = MOVEMENT_DEFAULT_LONGITUDE;
     movement_state.birthdate.bit.year = MOVEMENT_DEFAULT_BIRTHDATE_YEAR;
@@ -621,10 +609,6 @@ bool app_loop(void) {
     // if we have timed out of our timeout countdown, give the app a hint that they can resign.
     if (movement_state.timeout_ticks == 0) {
         movement_state.timeout_ticks = -1;
-        if (movement_state.settings.bit.to_always == false) {
-            // if "timeout always" is false, give the current watch face a chance to exit gracefully...
-            event.event_type = EVENT_TIMEOUT;
-        }
         event.subsecond = movement_state.subsecond;
         // if we run through the loop again to time out, we need to reconsider whether or not we can sleep.
         // if the first trip said true, but this trip said false, we need the false to override, thus
@@ -636,8 +620,7 @@ bool app_loop(void) {
         bool can_sleep2 = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         can_sleep = can_sleep && can_sleep2;
         event.event_type = EVENT_NONE;
-        if (movement_state.settings.bit.to_always && movement_state.current_face_idx != 0) {
-            // ...but if the user has "timeout always" set, give it the boot.
+        if (movement_state.current_face_idx != 0) {
             movement_move_to_face(0);
         }
     }
@@ -694,7 +677,7 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
 }
 
 static movement_event_type_t btn_action(bool pin_level, int code, uint16_t *timestamp) {
-    _movement_reset_inactivity_countdown(); 
+    _movement_reset_inactivity_countdown();
     return _figure_out_button_event(pin_level, code, timestamp);
 }
 

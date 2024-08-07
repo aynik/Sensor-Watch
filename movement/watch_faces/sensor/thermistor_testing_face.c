@@ -28,15 +28,11 @@
 #include "thermistor_driver.h"
 #include "watch.h"
 
-static void _thermistor_testing_face_update_display(bool in_fahrenheit) {
+static void _thermistor_testing_face_update_display() {
     thermistor_driver_enable();
     float temperature_c = thermistor_driver_get_temperature();
     char buf[14];
-    if (in_fahrenheit) {
-        sprintf(buf, "%4.1f#F", temperature_c * 1.8 + 32.0);
-    } else {
-        sprintf(buf, "%4.1f#C", temperature_c);
-    }
+    sprintf(buf, "%4.1f#C", temperature_c);
     watch_display_string(buf, 4);
     thermistor_driver_disable();
 }
@@ -59,13 +55,9 @@ void thermistor_testing_face_activate(movement_settings_t *settings, void *conte
 bool thermistor_testing_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) context;
     switch (event.event_type) {
-        case EVENT_ALARM_BUTTON_DOWN:
-            settings->bit.use_imperial_units = !settings->bit.use_imperial_units;
-            _thermistor_testing_face_update_display(settings->bit.use_imperial_units);
-            break;
         case EVENT_ACTIVATE:
         case EVENT_TICK:
-            _thermistor_testing_face_update_display(settings->bit.use_imperial_units);
+            _thermistor_testing_face_update_display();
             break;
         default:
             movement_default_loop_handler(event, settings);
