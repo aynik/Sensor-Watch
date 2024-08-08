@@ -315,6 +315,11 @@ void movement_move_to_face(uint8_t watch_face_index) {
     movement_state.next_face_idx = watch_face_index;
 }
 
+void movement_move_to_face_silently(uint8_t watch_face_index) {
+    movement_state.watch_face_changed_silently = true;
+    movement_move_to_face(watch_face_index);
+}
+
 void movement_move_to_next_face(void) {
     uint16_t face_max;
     if (MOVEMENT_SECONDARY_FACE_INDEX) {
@@ -378,10 +383,9 @@ static void set_initial_clock_mode(void) {
 void movement_play_signal(void) {
     void *maybe_disable_buzzer = end_buzzing_and_disable_buzzer;
     if (watch_is_buzzer_or_led_enabled()) {
-        maybe_disable_buzzer = end_buzzing;
-    } else {
-        watch_enable_buzzer();
+        return;
     }
+    watch_enable_buzzer();
     movement_state.is_buzzing = true;
     watch_buzzer_play_sequence(signal_tune_short, maybe_disable_buzzer);
     if (movement_state.le_mode_ticks == -1) {
@@ -405,6 +409,16 @@ void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note) {
     movement_state.alarm_note = alarm_note;
     // our tone is 0.375 seconds of beep and 0.625 of silence, repeated as given.
     movement_state.alarm_ticks = 128 * rounds - 75;
+    _movement_enable_fast_tick_if_needed();
+}
+
+void movement_play_alarm_tune(int8_t alarm_tune[]) {
+    movement_request_wake();
+    end_buzzing();
+    watch_buzzer_abort_sequence();
+    void *maybe_disable_buzzer = end_buzzing_and_disable_buzzer;
+    watch_buzzer_play_sequence(alarm_tune, maybe_disable_buzzer);
+    movement_state.alarm_ticks = 1;
     _movement_enable_fast_tick_if_needed();
 }
 
@@ -537,7 +551,7 @@ bool app_loop(void) {
     const watch_face_t *wf = &watch_faces[movement_state.current_face_idx];
     bool woke_up_for_buzzer = false;
     if (movement_state.watch_face_changed) {
-        if (movement_state.settings.bit.button_should_sound) {
+        if (!movement_state.watch_face_changed_silently && movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
             watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
@@ -551,6 +565,7 @@ bool app_loop(void) {
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
         movement_state.watch_face_changed = false;
+        movement_state.watch_face_changed_silently = false;
     }
 
     // if the LED should be off, turn it off
@@ -627,24 +642,12 @@ bool app_loop(void) {
         }
     }
 
-    // Now that we've handled all display update tasks, handle the alarm.
-    if (movement_state.alarm_ticks >= 0) {
-        uint8_t buzzer_phase = (movement_state.alarm_ticks + 80) % 128;
-        if(buzzer_phase == 127) {
-            // failsafe: buzzer could have been disabled in the meantime
-            if (!watch_is_buzzer_or_led_enabled()) watch_enable_buzzer();
-            // play 4 beeps plus pause
-            for(uint8_t i = 0; i < 4; i++) {
-                // TODO: This method of playing the buzzer blocks the UI while it's beeping.
-                // It might be better to time it with the fast tick.
-                watch_buzzer_play_note(movement_state.alarm_note, (i != 3) ? 50 : 75);
-                if (i != 3) watch_buzzer_play_note(BUZZER_NOTE_REST, 50);
-            }
-        }
-        if (movement_state.alarm_ticks == 0) {
-            movement_state.alarm_ticks = -1;
-            _movement_disable_fast_tick_if_possible();
-        }
+    // We gotta disable the buzzer check when playing the alarm
+    if (movement_state.alarm_ticks > 0) {
+        woke_up_for_buzzer = false;
+    } else if (movement_state.alarm_ticks == 0) {
+        movement_state.alarm_ticks = -1;
+        _movement_disable_fast_tick_if_possible();
     }
 
     // if we are plugged into USB, handle the serial shell

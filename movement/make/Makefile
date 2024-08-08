@@ -133,6 +133,7 @@ SRCS += \
   ../watch_faces/complication/metronome_face.c \
   ../watch_faces/demo/beeps_face.c \
   ../watch_faces/demo/signal_face.c \
+  ../watch_faces/complication/tune_alarm_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.

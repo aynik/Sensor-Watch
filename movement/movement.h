@@ -249,6 +249,7 @@ typedef struct {
     int16_t current_face_idx;
     int16_t next_face_idx;
     bool watch_face_changed;
+    bool watch_face_changed_silently;
     bool fast_tick_enabled;
     int16_t fast_ticks;
 
@@ -290,6 +291,7 @@ typedef struct {
 } movement_state_t;
 
 void movement_move_to_face(uint8_t watch_face_index);
+void movement_move_to_face_silently(uint8_t watch_face_index);
 void movement_move_to_next_face(void);
 
 bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings);
@@ -315,6 +317,7 @@ void movement_request_wake(void);
 void movement_play_signal(void);
 void movement_play_alarm(void);
 void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
+void movement_play_alarm_tune(int8_t alarm_tune[]);
 
 uint8_t movement_claim_backup_register(void);
 
