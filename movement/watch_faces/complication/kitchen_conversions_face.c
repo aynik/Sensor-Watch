@@ -81,6 +81,7 @@ static int8_t calc_fail_seq[5] = {BUZZER_NOTE_C7, 10, BUZZER_NOTE_G6, 10, 0};
 // Resets all state variables to 0
 static void reset_state(kitchen_conversions_state_t *state, movement_settings_t *settings)
 {
+    (void) settings;
     state->pg = measurement;
     state->measurement_i = 0;
     state->from_i = 0;
