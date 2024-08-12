@@ -1,6 +1,7 @@
 # Leave this line at the top of the file; it has all the watch library sources and includes.
 TOP = ../..
 include $(TOP)/make.mk
+-include $(TOP)/config.mk
 
 # If you add any other subdirectories with header files you wish to include, add them after ../
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.

@@ -166,18 +166,120 @@ static void _play_tune_alarm(uint8_t tune_idx) {
     }
 }
 
+#define INIT_ALARM(i) \
+    state->tune_alarm[i].day = TUNE_ALARM_SETTING_##i##_DAY; \
+    state->tune_alarm[i].hour = TUNE_ALARM_SETTING_##i##_HOUR; \
+    state->tune_alarm[i].minute = TUNE_ALARM_SETTING_##i##_MINUTE; \
+    state->tune_alarm[i].tune_idx = TUNE_ALARM_SETTING_##i##_TUNE_IDX; \
+    state->tune_alarm[i].enabled = TUNE_ALARM_SETTING_##i##_ENABLED;
+
+#define DEFAULT_INIT(i) \
+    state->tune_alarm[i].day = 7; \
+    state->tune_alarm[i].hour = 0; \
+    state->tune_alarm[i].minute = 0; \
+    state->tune_alarm[i].tune_idx = 0; \
+    state->tune_alarm[i].enabled = false;
+
 void tune_alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr) {
     (void) settings;
     (void) watch_face_index;
 
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(tune_alarm_state_t));
-        tune_alarm_state_t *state = (tune_alarm_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(tune_alarm_state_t));
-        for (uint8_t i = 0; i < TUNE_ALARM_TUNE_ALARMS; i++) {
-            state->tune_alarm[i].day = TUNE_ALARM_DAY_EACH_DAY;
-        }
+        tune_alarm_state_t *state = (tune_alarm_state_t *)*context_ptr;
         state->tune_alarm_handled_minute = -1;
+
+    #if defined(TUNE_ALARM_SETTING_0_ENABLED)
+        INIT_ALARM(0)
+    #else
+        DEFAULT_INIT(0)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_1_ENABLED)
+        INIT_ALARM(1)
+    #else
+        DEFAULT_INIT(1)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_2_ENABLED)
+        INIT_ALARM(2)
+    #else
+        DEFAULT_INIT(2)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_3_ENABLED)
+        INIT_ALARM(3)
+    #else
+        DEFAULT_INIT(3)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_4_ENABLED)
+        INIT_ALARM(4)
+    #else
+        DEFAULT_INIT(4)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_5_ENABLED)
+        INIT_ALARM(5)
+    #else
+        DEFAULT_INIT(5)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_6_ENABLED)
+        INIT_ALARM(6)
+    #else
+        DEFAULT_INIT(6)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_7_ENABLED)
+        INIT_ALARM(7)
+    #else
+        DEFAULT_INIT(7)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_8_ENABLED)
+        INIT_ALARM(8)
+    #else
+        DEFAULT_INIT(8)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_9_ENABLED)
+        INIT_ALARM(9)
+    #else
+        DEFAULT_INIT(9)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_10_ENABLED)
+        INIT_ALARM(10)
+    #else
+        DEFAULT_INIT(10)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_11_ENABLED)
+        INIT_ALARM(11)
+    #else
+        DEFAULT_INIT(11)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_12_ENABLED)
+        INIT_ALARM(12)
+    #else
+        DEFAULT_INIT(12)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_13_ENABLED)
+        INIT_ALARM(13)
+    #else
+        DEFAULT_INIT(13)
+    #endif
+
+    #if defined(TUNE_ALARM_SETTING_14_ENABLED)
+        INIT_ALARM(14)
+    #else
+        DEFAULT_INIT(14)
+    #endif
+
         _wait_ticks = -1;
         _alarm_update_alarm_enabled(settings, state);
     }

@@ -427,16 +427,125 @@ void app_init(void) {
 #endif
 
     memset(&movement_state, 0, sizeof(movement_state));
-    movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
-    movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
-    movement_state.settings.bit.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
-    movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
-    movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
-    movement_state.location.bit.latitude = MOVEMENT_DEFAULT_LATITUDE;
-    movement_state.location.bit.longitude = MOVEMENT_DEFAULT_LONGITUDE;
-    movement_state.birthdate.bit.year = MOVEMENT_DEFAULT_BIRTHDATE_YEAR;
-    movement_state.birthdate.bit.month = MOVEMENT_DEFAULT_BIRTHDATE_MONTH;
-    movement_state.birthdate.bit.day = MOVEMENT_DEFAULT_BIRTHDATE_DAY;
+    movement_state.settings.bit.clock_mode_24h =
+    #if defined(MOVEMENT_SETTINGS_CLOCK_MODE_24H)
+        MOVEMENT_SETTINGS_CLOCK_MODE_24H;
+    #else
+        0;
+    #endif
+
+    movement_state.settings.bit.led_red_color =
+    #if defined(MOVEMENT_SETTINGS_LED_RED_COLOR)
+        MOVEMENT_SETTINGS_LED_RED_COLOR;
+    #else
+        MOVEMENT_DEFAULT_RED_COLOR;
+    #endif
+
+    movement_state.settings.bit.led_green_color =
+    #if defined(MOVEMENT_SETTINGS_LED_GREEN_COLOR)
+        MOVEMENT_SETTINGS_LED_GREEN_COLOR;
+    #else
+        MOVEMENT_DEFAULT_GREEN_COLOR;
+    #endif
+
+    movement_state.settings.bit.button_should_sound =
+    #if defined(MOVEMENT_SETTINGS_BUTTON_SHOULD_SOUND)
+        MOVEMENT_SETTINGS_BUTTON_SHOULD_SOUND;
+    #else
+        MOVEMENT_DEFAULT_BUTTON_SOUND;
+    #endif
+
+    movement_state.settings.bit.to_interval =
+    #if defined(MOVEMENT_SETTINGS_TO_INTERVAL)
+        MOVEMENT_SETTINGS_TO_INTERVAL;
+    #else
+        MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
+    #endif
+
+    movement_state.settings.bit.le_interval =
+    #if defined(MOVEMENT_SETTINGS_LE_INTERVAL)
+        MOVEMENT_SETTINGS_LE_INTERVAL;
+    #else
+        MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
+    #endif
+
+    movement_state.settings.bit.time_zone =
+    #if defined(MOVEMENT_SETTINGS_TIME_ZONE)
+        MOVEMENT_SETTINGS_TIME_ZONE;
+    #else
+        0;
+    #endif
+
+    movement_state.settings.bit.silent_from =
+    #if defined(MOVEMENT_SETTINGS_SILENT_FROM)
+        MOVEMENT_SETTINGS_SILENT_FROM;
+    #else
+        0;
+    #endif
+
+    movement_state.settings.bit.silent_to =
+    #if defined(MOVEMENT_SETTINGS_SILENT_TO)
+        MOVEMENT_SETTINGS_SILENT_TO;
+    #else
+        0;
+    #endif
+
+    movement_state.settings.bit.alarm_enabled =
+    #if defined(MOVEMENT_SETTINGS_ALARM_ENABLED)
+        MOVEMENT_SETTINGS_ALARM_ENABLED;
+    #else
+        0;
+    #endif
+
+    movement_state.location.bit.latitude =
+    #if defined(MOVEMENT_LOCATION_LATITUDE)
+        MOVEMENT_LOCATION_LATITUDE;
+    #else
+        MOVEMENT_DEFAULT_LATITUDE;
+    #endif
+
+    movement_state.location.bit.longitude =
+    #if defined(MOVEMENT_LOCATION_LONGITUDE)
+        MOVEMENT_LOCATION_LONGITUDE;
+    #else
+        MOVEMENT_DEFAULT_LONGITUDE;
+    #endif
+
+    movement_state.birthdate.bit.year =
+    #if defined(MOVEMENT_BIRTHDATE_YEAR)
+        MOVEMENT_BIRTHDATE_YEAR;
+    #else
+        MOVEMENT_DEFAULT_BIRTHDATE_YEAR;
+    #endif
+
+    movement_state.birthdate.bit.month =
+    #if defined(MOVEMENT_BIRTHDATE_MONTH)
+        MOVEMENT_BIRTHDATE_MONTH;
+    #else
+        MOVEMENT_DEFAULT_BIRTHDATE_MONTH;
+    #endif
+
+    movement_state.birthdate.bit.day =
+    #if defined(MOVEMENT_BIRTHDATE_DAY)
+        MOVEMENT_BIRTHDATE_DAY;
+    #else
+        MOVEMENT_DEFAULT_BIRTHDATE_DAY;
+    #endif
+
+    movement_state.birthdate.bit.hour =
+    #if defined(MOVEMENT_BIRTHDATE_HOUR)
+        MOVEMENT_BIRTHDATE_HOUR;
+    #else
+        0;
+    #endif
+
+    movement_state.birthdate.bit.minute =
+    #if defined(MOVEMENT_BIRTHDATE_MINUTE)
+        MOVEMENT_BIRTHDATE_MINUTE;
+    #else
+        0;
+    #endif
+
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;

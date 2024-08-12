@@ -69,7 +69,42 @@ int main(void) {
     // if date/time register is 0 (power on reset state), default year to 2023.
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.reg == 0) {
-        date_time.unit.year = 3;
+        date_time.unit.year =
+        #if defined(WATCH_DATE_TIME_YEAR)
+                WATCH_DATE_TIME_YEAR;
+        #else
+                3;
+        #endif
+        date_time.unit.month =
+        #if defined(WATCH_DATE_TIME_MONTH)
+                WATCH_DATE_TIME_MONTH;
+        #else
+                1;
+        #endif
+        date_time.unit.day =
+        #if defined(WATCH_DATE_TIME_DAY)
+                WATCH_DATE_TIME_DAY;
+        #else
+                1;
+        #endif
+        date_time.unit.hour =
+        #if defined(WATCH_DATE_TIME_HOUR)
+                WATCH_DATE_TIME_HOUR;
+        #else
+                0;
+        #endif
+        date_time.unit.minute =
+        #if defined(WATCH_DATE_TIME_MINUTE)
+                WATCH_DATE_TIME_MINUTE;
+        #else
+                0;
+        #endif
+        date_time.unit.second =
+        #if defined(WATCH_DATE_TIME_SECOND)
+                WATCH_DATE_TIME_SECOND;
+        #else
+                0;
+        #endif
         watch_rtc_set_date_time(date_time);
     }
 
