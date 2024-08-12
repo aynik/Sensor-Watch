@@ -72,6 +72,11 @@ of debounce time.
 #define MOVEMENT_SECONDARY_FACE_INDEX 0
 #endif
 
+// Default to no tertiary face behaviour.
+#ifndef MOVEMENT_TERTIARY_FACE_INDEX
+#define MOVEMENT_TERTIARY_FACE_INDEX 0
+#endif
+
 // Set default LED colors if not set
 #ifndef MOVEMENT_DEFAULT_RED_COLOR
 #define MOVEMENT_DEFAULT_RED_COLOR 0x0
@@ -304,12 +309,16 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
             }
             break;
         case EVENT_MODE_LONG_PRESS:
-            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
+            if (movement_state.current_face_idx == 0) {
                 movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
+                break;
+            } else if (movement_state.current_face_idx == MOVEMENT_SECONDARY_FACE_INDEX) {
+                movement_move_to_face(MOVEMENT_TERTIARY_FACE_INDEX);
+                break;
             } else {
                 movement_move_to_face(0);
+                break;
             }
-            break;
         default:
             break;
     }
@@ -329,8 +338,12 @@ void movement_move_to_face_silently(uint8_t watch_face_index) {
 
 void movement_move_to_next_face(void) {
     uint16_t face_max;
-    if (MOVEMENT_SECONDARY_FACE_INDEX) {
-        face_max = (movement_state.current_face_idx < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+    if (movement_state.current_face_idx < (int16_t)MOVEMENT_TERTIARY_FACE_INDEX) {
+        if (movement_state.current_face_idx < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) {
+            face_max = MOVEMENT_SECONDARY_FACE_INDEX;
+        } else {
+            face_max = MOVEMENT_TERTIARY_FACE_INDEX;
+        }
     } else {
         face_max = MOVEMENT_NUM_FACES;
     }
