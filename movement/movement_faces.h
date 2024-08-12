@@ -108,6 +108,7 @@
 #include "beeps_face.h"
 #include "tune_alarm_face.h"
 #include "signal_face.h"
+#include "simple_sunrise_sunset_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
