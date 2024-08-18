@@ -41,7 +41,7 @@ void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_i
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(simple_clock_state_t));
         simple_clock_state_t *state = (simple_clock_state_t *)*context_ptr;
-        state->signal_enabled = false;
+        state->signal_enabled = true;
         state->watch_face_index = watch_face_index;
     }
 }
