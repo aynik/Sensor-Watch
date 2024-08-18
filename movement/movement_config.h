@@ -88,12 +88,12 @@ const watch_face_t watch_faces[] = {
 
 /* Set the led duration
  * Valid values are:
- * 0: No LED
+ * 0: Instant
  * 1: 1 second
  * 2: 3 seconds
  * 3: 5 seconds
  */
-#define MOVEMENT_DEFAULT_LED_DURATION 2
+#define MOVEMENT_DEFAULT_LED_DURATION 0
 
 /* The latitude and longitude used for the wearers location
  * Set signed values in 1/100ths of a degree

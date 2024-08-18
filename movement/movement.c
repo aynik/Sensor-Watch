@@ -100,9 +100,9 @@ of debounce time.
 #define MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL 2
 #endif
 
-// Default to 1 second led duration
+// Default to instant led duration
 #ifndef MOVEMENT_DEFAULT_LED_DURATION
-#define MOVEMENT_DEFAULT_LED_DURATION 1
+#define MOVEMENT_DEFAULT_LED_DURATION 0
 #endif
 
 // Default to no set location latitude
@@ -280,7 +280,7 @@ void movement_request_tick_frequency(uint8_t freq) {
 void movement_illuminate_led(void) {
     watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
                         movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
-    movement_state.light_ticks = (MOVEMENT_DEFAULT_LED_DURATION * 2 - 1) * 128;
+    movement_state.light_ticks = MOVEMENT_DEFAULT_LED_DURATION == 0 ? 1 : (MOVEMENT_DEFAULT_LED_DURATION * 2 - 1) * 128;
     _movement_enable_fast_tick_if_needed();
 }
 
@@ -293,6 +293,13 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (MOVEMENT_DEFAULT_LED_DURATION == 0) {
+                watch_set_led_off();
+                movement_state.light_ticks = -1;
+                _movement_disable_fast_tick_if_possible();
+            }
             break;
         case EVENT_MODE_LONG_PRESS:
             if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
