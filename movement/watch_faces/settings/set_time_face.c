@@ -80,7 +80,7 @@ void set_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index
 
 void set_time_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    *((uint8_t *)context) = 0;
+    *((uint8_t *)context) = 2;
     movement_request_tick_frequency(4);
     _quick_ticks_running = false;
 }
