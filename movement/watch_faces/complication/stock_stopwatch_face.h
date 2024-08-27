@@ -54,10 +54,6 @@
 
 #include "movement.h"
 
-typedef struct {
-    bool light_on_button;   // determines whether the light button actually triggers the led
-} stock_stopwatch_state_t;
-
 void stock_stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void stock_stopwatch_face_activate(movement_settings_t *settings, void *context);
 bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
