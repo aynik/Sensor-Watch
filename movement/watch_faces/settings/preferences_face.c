@@ -153,16 +153,16 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
         case 3:
             switch (settings->bit.to_interval) {
                 case 0:
-                    blink_value("60 SeC", 4, 6, event.subsecond);
+                    blink_value(" Never", 4, 6, event.subsecond);
                     break;
                 case 1:
-                    blink_value("2 n&in", 4, 6, event.subsecond);
+                    blink_value("60 SeC", 4, 6, event.subsecond);
                     break;
                 case 2:
-                    blink_value("5 n&in", 4, 6, event.subsecond);
+                    blink_value("2 n&in", 4, 6, event.subsecond);
                     break;
                 case 3:
-                    blink_value("30n&in", 4, 6, event.subsecond);
+                    blink_value("5 n&in", 4, 6, event.subsecond);
                     break;
             }
             break;
@@ -172,26 +172,27 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     blink_value(" Never", 4, 6, event.subsecond);
                     break;
                 case 1:
-                    blink_value("10n&in", 4, 6, event.subsecond);
+                    blink_value("10 sec", 4, 6, event.subsecond);
                     break;
                 case 2:
-                    blink_value("1 hour", 4, 6, event.subsecond);
+                    blink_value("1 n&in", 4, 6, event.subsecond);
                     break;
                 case 3:
-                    blink_value("2 hour", 4, 6, event.subsecond);
+                    blink_value("10n&in", 4, 6, event.subsecond);
                     break;
                 case 4:
-                    blink_value("6 hour", 4, 6, event.subsecond);
+                    blink_value("1 hour", 4, 6, event.subsecond);
                     break;
                 case 5:
-                    blink_value("12 hr ", 4, 6, event.subsecond);
+                    blink_value("2 hour", 4, 6, event.subsecond);
                     break;
                 case 6:
-                    blink_value(" 1 day", 4, 6, event.subsecond);
+                    blink_value("6 hour", 4, 6, event.subsecond);
                     break;
                 case 7:
-                    blink_value(" 7 day", 4, 6, event.subsecond);
+                    blink_value("12 hr ", 4, 6, event.subsecond);
                     break;
+
             }
             break;
         case 5:
