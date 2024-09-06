@@ -192,6 +192,7 @@ void cb_mode_btn_interrupt(void);
 void cb_light_btn_interrupt(void);
 void cb_alarm_btn_interrupt(void);
 void cb_alarm_btn_extwake(void);
+void cb_a4_extwake(void);
 void cb_alarm_fired(void);
 void cb_fast_tick(void);
 void cb_tick(void);
@@ -218,6 +219,7 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
         ((movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm) == 0) &&
         ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
         movement_state.fast_tick_enabled = false;
+        movement_state.wake_light_state = 0;
         watch_rtc_disable_periodic_callback(128);
     }
 }
@@ -605,6 +607,7 @@ void app_setup(void) {
     }
     if (movement_state.le_mode_ticks != -1) {
         watch_disable_extwake_interrupt(BTN_ALARM);
+        watch_disable_extwake_interrupt(A4);
 
         watch_enable_external_interrupts();
         watch_register_interrupt_callback(BTN_MODE, cb_mode_btn_interrupt, INTERRUPT_TRIGGER_BOTH);
@@ -661,6 +664,10 @@ bool app_loop(void) {
         }
         wf->resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         movement_state.current_face_idx = movement_state.next_face_idx;
+        if (movement_state.current_face_idx == 0) {
+            // if we are returning to the main watch face, reset the inactivity countdown
+            _movement_reset_inactivity_countdown();
+        }
         // we have just updated the face idx, so we must recache the watch face pointer.
         wf = &watch_faces[movement_state.current_face_idx];
         watch_clear_display();
@@ -691,9 +698,11 @@ bool app_loop(void) {
     if (event.event_type == EVENT_TICK && movement_state.has_scheduled_background_task) _movement_handle_scheduled_tasks();
 
     // if we have timed out of our low energy mode countdown, enter low energy mode.
-    if (movement_state.le_mode_ticks == 0) {
+    if (movement_state.current_face_idx == 0 && movement_state.le_mode_ticks == 0) {
         movement_state.le_mode_ticks = -1;
         watch_register_extwake_callback(BTN_ALARM, cb_alarm_btn_extwake, true);
+        watch_register_extwake_callback(A4, cb_a4_extwake, true);
+        gpio_set_pin_pull_mode(A4, GPIO_PULL_DOWN);
         event.event_type = EVENT_NONE;
         event.subsecond = 0;
 
@@ -723,7 +732,7 @@ bool app_loop(void) {
     }
 
     // if we have timed out of our timeout countdown, give the app a hint that they can resign.
-    if (movement_state.timeout_ticks == 0) {
+    if (movement_state.settings.bit.to_interval && movement_state.current_face_idx != 0 && movement_state.timeout_ticks == 0) {
         movement_state.timeout_ticks = -1;
         event.subsecond = movement_state.subsecond;
         // if we run through the loop again to time out, we need to reconsider whether or not we can sleep.
@@ -736,9 +745,7 @@ bool app_loop(void) {
         bool can_sleep2 = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         can_sleep = can_sleep && can_sleep2;
         event.event_type = EVENT_NONE;
-        if (movement_state.current_face_idx != 0) {
-            movement_move_to_face(0);
-        }
+        movement_move_to_face(0);
     }
 
     // We gotta disable the buzzer check when playing the alarm
@@ -763,7 +770,11 @@ bool app_loop(void) {
     if (woke_up_for_buzzer) {
         while(watch_is_buzzer_or_led_enabled());
     }
-
+    // Woke up from the LIGHT button
+    if (movement_state.wake_light_state == 1) {
+        movement_illuminate_led();
+        movement_state.wake_light_state = 0;
+    }
     // if the LED is on, we need to stay awake to keep the TCC running.
     if (movement_state.light_ticks != -1) can_sleep = false;
 
@@ -853,6 +864,12 @@ void cb_alarm_btn_extwake(void) {
     _movement_reset_inactivity_countdown();
 }
 
+void cb_a4_extwake(void) {
+    // wake up with light!
+    _movement_reset_inactivity_countdown();
+    movement_state.wake_light_state = 1;
+}
+
 void cb_alarm_fired(void) {
     movement_state.needs_background_tasks_handled = true;
 }
@@ -889,7 +906,7 @@ void cb_tick(void) {
     if (date_time.unit.second != movement_state.last_second) {
         // TODO: can we consolidate these two ticks?
         if (movement_state.settings.bit.le_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
-        if (movement_state.timeout_ticks > 0) movement_state.timeout_ticks--;
+        if (movement_state.settings.bit.to_interval && movement_state.timeout_ticks > 0) movement_state.timeout_ticks--;
 
         movement_state.last_second = date_time.unit.second;
         movement_state.subsecond = 0;

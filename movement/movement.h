@@ -263,7 +263,7 @@ typedef struct {
     bool needs_background_tasks_handled;
     bool has_scheduled_background_task;
     bool needs_wake;
-
+ 
     // low energy mode countdown
     int32_t le_mode_ticks;
     uint8_t debounce_ticks_light;
@@ -281,6 +281,9 @@ typedef struct {
 
     // backup register stuff
     uint8_t next_available_backup_register;
+
+    // to track state of light after waking
+    int16_t wake_light_state;
 } movement_state_t;
 
 void movement_move_to_face(uint8_t watch_face_index);
